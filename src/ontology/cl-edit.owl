@@ -3292,6 +3292,7 @@ Declaration(Class(obo:CL_7770003))
 Declaration(Class(obo:CL_7770004))
 Declaration(Class(obo:CL_7770005))
 Declaration(Class(obo:CL_7770006))
+Declaration(Class(obo:CL_9900000))
 Declaration(Class(obo:CP_0000000))
 Declaration(Class(obo:CP_0000025))
 Declaration(Class(obo:CP_0000027))
@@ -35464,6 +35465,18 @@ AnnotationAssertion(Annotation(dc:license <http://creativecommons.org/licenses/b
 SubClassOf(obo:CL_7770006 obo:CL_0002367)
 SubClassOf(obo:CL_7770006 ObjectSomeValuesFrom(obo:RO_0002162 obo:NCBITaxon_9606))
 SubClassOf(obo:CL_7770006 ObjectSomeValuesFrom(obo:RO_0002292 obo:PR_Q9UIK5))
+
+# Class: obo:CL_9900000 (bone marrow adipocyte)
+
+AnnotationAssertion(Annotation(oboInOwl:hasDbXref "PMID:32286228") Annotation(oboInOwl:hasDbXref "PMID:34912805") obo:IAO_0000115 obo:CL_9900000 "A mature, lipid-laden adipocyte that resides in the bone marrow cavity and is derived from bone marrow mesenchymal stromal cells. This cell type is developmentally and functionally distinct from white, brown, and beige adipocytes. Bone marrow adipocytes are metabolically active cells with abundant lipid stores, mitochondria, and endoplasmic reticulum, and serve critical regulatory roles in hematopoiesis, osteogenesis, osteoclastogenesis, and immune regulation within the bone marrow microenvironment.")
+AnnotationAssertion(terms:contributor obo:CL_9900000 <https://orcid.org/0000-0003-0098-4399>)
+AnnotationAssertion(terms:creator obo:CL_9900000 "GitHub Copilot")
+AnnotationAssertion(terms:date obo:CL_9900000 "2026-01-27T14:30:24Z"^^xsd:dateTime)
+AnnotationAssertion(oboInOwl:hasExactSynonym obo:CL_9900000 "BMA")
+AnnotationAssertion(oboInOwl:hasExactSynonym obo:CL_9900000 "marrow adipocyte")
+AnnotationAssertion(rdfs:label obo:CL_9900000 "bone marrow adipocyte")
+EquivalentClasses(obo:CL_9900000 ObjectIntersectionOf(obo:CL_0000136 ObjectSomeValuesFrom(obo:BFO_0000050 obo:UBERON_0002371)))
+SubClassOf(Annotation(oboInOwl:is_inferred "true") obo:CL_9900000 obo:CL_0000136)
 
 # Class: obo:CP_0000000 (obsolete CP:0000000)
 
