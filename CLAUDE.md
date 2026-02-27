@@ -1,142 +1,114 @@
-# CL Ontology Project Guide
-
-This includes instructions for editing the cl ontology. 
+# CL Ontology — Claude Code System Prompt & Orchestrator
 
 ## Project Layout
-- Main development file is `src/ontology/cl-edit.owl` (functional syntax, one line per axiom).  ONLY EDIT THIS FILE, or files under docs/.
-- ODK and ontology documentation can be found in `/docs/`
 
-## Querying ontology
+- Main development file: `src/ontology/cl-edit.owl` (OWL functional syntax, one axiom per line). **Only edit this file** (or files under `docs/`).
+- ODK and ontology documentation: `docs/`
+- Design patterns: `docs/patterns` and `src/patterns/dosdp-patterns/*.yaml`
 
-- Use grep/rg to find terms. Exploit the fact that typically it is one axiom per line
-    - `grep -i CL_0004177 src/ontology/cl-edit.owl` - all axioms that mention CL_0004177
-    - `grep 'AnnotationAssertion(rdfs:label "neuron"' src/ontology/cl-edit.owl` - the label axiom for neuron can be used to find the ID of neuron.
-- Only search over `src/ontology/cl-edit.owl`
-- DO NOT bother doing your own greps over the file, or looking for other files, unless otherwise asked, you will just waste time.
-- ONLY use the methods above for searching the ontology
+## Querying the Ontology
 
-## Before making edits
-- Read the request carefully and make a plan, especially if there is nuance
-- If related issues are mentioned read them: `gh issue view GITHUB-ISSUE-NUMBER`
-- if a PMID is mentioned in the issue, ALWAYS try and read it
-- ALWAYS check proposed parent terms for consistency
-- For terms that are compositional, check `src/patterns/dosdp-patterns/*.yaml`
-- When generating a textual definition for a term, make sure to include in-line references if there are in the text on the ticket.
-
-## Editors guide
-- design patterns are in docs/patterns
-- a guide to what relations to use for recording locations, properties etc can be found in docs/relations_guide.md
-
+Use grep/rg — one axiom per line makes this effective:
+```bash
+grep -i CL_0004177 src/ontology/cl-edit.owl          # all axioms mentioning a term
+grep 'AnnotationAssertion(rdfs:label.*"neuron"' src/ontology/cl-edit.owl  # find ID by label
+```
+Only search `src/ontology/cl-edit.owl`. Do not waste time grepping other files or exploring the repo structure.
 
 ## OBO Guidelines
-- Term ID format: CL_NNNNNNN (7-digit number)
-- Handling New Term Requests (NTRs):
-  - New term IDs MUST start with CL_99xxxxx (as specified in Datatype: idrange:81 in src/ontology/cl-idranges.owl)
-- Each term requires: id, name, definition with references
-- Never guess CL IDs, or ontology term IDs, use search tools above to determine actual term
-- Never guess PMIDs for references, do a web search if needed
-- Use standard relationship types: is_a, part_of, has_part, etc.
-- Follow existing term patterns for consistency
+
+- Term ID format: `CL_NNNNNNN` (7-digit)
+- New Term Requests (NTRs): IDs **must** start with `CL_99xxxxx` (see `src/ontology/cl-idranges.owl`, idrange:81)
+- Each term requires: ID, label, definition with at least one xref (ideally PMID)
+- Never guess CL IDs or PMIDs — use search tools to find real values
+- Standard relationships: `is_a`, `part_of`, `has_part`, etc.
+- Relations guide: `docs/relations_guide.md`
+- Definition writing guide: `docs/LLM_prompt_guidelines_for_CL_definitions.md`
 
 ## Publications
-- Run the command `aurelian fulltext <PMID:nnn>` to fetch full text for a publication. A doi or URL can also be used
-- You should cite publications appropriately, e.g. `def: "...." [PMID:nnnn, doi:mmmm]
+
+Fetch full text: `aurelian fulltext <PMID:nnn>` (DOI or URL also work).
+Cite as: `def: "..." [PMID:nnnn, doi:mmmm]`
+
+## Other Metadata
+
+- Link back to the issue using `term_tracker_item`
+- All new terms **must** have a timestamp: `AnnotationAssertion(terms:date obo:CL_XXXXXXX "2025-04-29T13:06:36Z"^^xsd:dateTime)`
+- Sign new terms: `dc:creator "GitHub Copilot"` (do not add creator when editing existing terms)
+- ORCIDs go as `terms:contributor` axioms: `AnnotationAssertion(terms:contributor obo:CL_XXXXXXX <https://orcid.org/...>)`
+
+## Obsoleting Terms
+
+- Remove all logical axioms (SubClassOf, EquivalentClasses)
+- Prefix label with "obsolete "
+- Add `owl:deprecated true`
+- Add replacement via `obo:IAO_0100001` if applicable, or `consider` tags
+- Rewire any terms that reference the obsoleted term
+- No `alt_id`s — if a user asks for a "merge", they mean obsoletion with direct replacement
 
 ## GitHub Contribution Process
-- most requests from users should follow one of two patterns:
-    - you are not confident how to proceed, in which case end with asking a clarifying question (via `gh`)
-    - you are confident how to proceed, you make changes, commit on a branch, and open a PR for the user to review
-- Check existing terms before adding new ones
-- For new terms: provide name, definition, place in hierarchy, and references
-- Include PMIDs for all assertions
-- Follow naming conventions from parent terms
-- always commit in a branch, e.g. issue-NNN
-- if there is an existing PR which you started then checkout that branch and continue, rather than starting a new PR (unless you explicitly want to abandon the original PR, e.g. it was on completely the wrong tracks)
-- always make clear detailed commit messages, saying what you did and why
-- always sign your commits `GitHub Copilot`
-- create PRs using `gh pr create ...`
-- File PRs with clear descriptions, and sign your PR
 
-## Handling GitHub issues and requests
-- Use `gh` to read and write issues/PRs
-- Sign all commits and PRs as `GitHub Copilot`
+- Branch naming: `issue-NNN`
+- If an existing PR/branch exists for the issue, continue there
+- Clear, detailed commit messages explaining what and why
+- Sign commits as `GitHub Copilot`
+- Create PRs with `gh pr create ...` and clear descriptions
+- Use `gh` to read/write issues and PRs
 
-## TROUBLESHOOTING
+## Troubleshooting
 
-- if your obo file has syntax errors, you can use `robot convert -vvv` to see full trace
-- use `robot reason` to validate
+- Syntax errors: `robot convert -vvv -i cl-edit.owl -o /dev/null`
+- Reasoning check: `robot reason -i cl-edit.owl -r ELK`
 
-## Obsoleting terms
+---
 
-obsolete terms should have no logical axioms (e.g. SubClassOf, EquivalentClasses) on them. Obsolete terms may be replaced by a single
-term (so-called obsoletion with exact replacement), or by zero to many `consider` tags.
+## Orchestration — Agent Delegation
 
-Synonyms and xrefs can be migrated judiciously,
+This project uses specialist agents. The orchestrator (this file) chains them because Claude Code subagents cannot spawn other subagents.
 
-We never do complete merges now, so there should be no `alt_ids` or
-disappearing stanzas. If a user asks for a merge, they usually mean
-obsoletion with direct replacement.
+### Agents
 
-No relationship should point to an obsolete term - when you obsolete a term, you may need to also rewire
-terms to "skip" the obsoleted term.
+| Agent | Role |
+|-------|------|
+| **CL-curator-validation** | Validates proposed edits against provided references |
+| **CL-curator-research** | Deep literature research and evidence gathering |
+| **CL-ontologist** | Technical OWL editing of `cl-edit.owl` |
+| **CL-importer** | Imports external ontology terms via OLS |
 
-## Other metadata
-
-- Link back to the issue you are dealing with using the `term_tracker_item`
-- All terms should have definitions, with at least one definition xref, ideally a PMID
-- All new terms MUST have a timestamp using Dublin Core terms date, e.g.
-  `AnnotationAssertion(terms:date obo:CL_4072102 "2025-04-29T13:06:36Z"^^xsd:dateTime)` (where terms: is a prefix for http://purl.org/dc/terms/)
-- You can sign terms as `dc:creator "GitHub Copilot"` only when creating new terms. You should not add yourself as a creator if you are editing existing terms.
-- If one or more ORCID are provided these MUST be added as Dublin Core Terms contributor axioms, e.g. `AnnotationAssertion(terms:contributor obo:CL_0000118 <https://orcid.org/0000-0002-2825-0621>)`
+### Default Workflow (issue handling)
 
 ```
-# Class: obo:CL_4072102 (Purkinje layer interneuron)
-AnnotationAssertion(Annotation(oboInOwl:hasDbXref "PMID:35803588") obo:IAO_0000115 obo:CL_4072102 "A type of GABAergic interneuron residing in the Purkinje cell layer of the cerebellar cortex.")
-AnnotationAssertion(terms:date obo:CL_4072102 "2025-04-29T13:06:36Z"^^xsd:dateTime)
-AnnotationAssertion(Annotation(oboInOwl:hasDbXref "PMID:35803588") Annotation(oboInOwl:hasSynonymType obo:OMO_0003000) oboInOwl:hasRelatedSynonym obo:CL_4072102 "PLI")
-AnnotationAssertion(rdfs:label obo:CL_4072102 "Purkinje layer interneuron")
-EquivalentClasses(obo:CL_4072102 ObjectIntersectionOf(obo:CL_0000099 ObjectSomeValuesFrom(obo:RO_0002100 obo:UBERON_0002979)))
-SubClassOf(obo:CL_4072102 ObjectSomeValuesFrom(obo:RO_0002215 obo:GO_0061534))
+1. Spawn CL-curator-validation → validates the request against references
+2. Spawn CL-ontologist → performs the edit
+3. If CL-ontologist needs external terms imported:
+   a. Spawn CL-importer → adds IRIs and refreshes imports
+   b. Re-invoke CL-ontologist → completes the edit with imported terms
+4. Commit, create PR
 ```
 
+### Research Workflow (explicit request only)
 
-No relationship should point to an obsolete term - when you obsolete a term, you may need to also rewire
-terms to "skip" the obsoleted term.
+**CL-curator-research is NEVER auto-spawned.** Only use it when:
+- The user explicitly asks for research (e.g., "research this cell type", "do a literature review")
+- An issue is labeled `research`
+- The user says to use the research agent
 
-## Other metadata
-
-- Link back to the issue you are dealing with using the `term_tracker_item`
-- All terms should have definitions, with at least one definition xref, ideally a PMID
-- You can sign terms as `terms:creator "GitHub Copilot"` only when creating new terms. You should not add yourself as a creator if you are editing existing terms. (Note: terms: is the prefix for http://purl.org/dc/terms/)
-
-
-## Relationships
-
-All terms should have at least one "is_a" (SubClassOf to a named class) -- (this can be implicit by a logical definition, see below).
-Many terms in this ontology have part_of relationships to UBERON.
-
-## Logical definitions
-
-These should follow genus-differentia form, and the text definition should mirror the logical definition. Example:
+When research is requested, it replaces validation as the first step, then continues into the default workflow:
 
 ```
-# Class: obo:CL_4072102 (Purkinje layer interneuron)
-AnnotationAssertion(Annotation(oboInOwl:hasDbXref "PMID:35803588") obo:IAO_0000115 obo:CL_4072102 "A type of GABAergic interneuron residing in the Purkinje cell layer of the cerebellar cortex.")
-AnnotationAssertion(terms:date obo:CL_4072102 "2025-04-29T13:06:36Z"^^xsd:dateTime)
-AnnotationAssertion(Annotation(oboInOwl:hasDbXref "PMID:35803588") Annotation(oboInOwl:hasSynonymType obo:OMO_0003000) oboInOwl:hasRelatedSynonym obo:CL_4072102 "PLI")
-AnnotationAssertion(rdfs:label obo:CL_4072102 "Purkinje layer interneuron")
-EquivalentClasses(obo:CL_4072102 ObjectIntersectionOf(obo:CL_0000099 ObjectSomeValuesFrom(obo:RO_0002100 obo:UBERON_0002979)))
-SubClassOf(obo:CL_4072102 ObjectSomeValuesFrom(obo:RO_0002215 obo:GO_0061534))
+1. Spawn CL-curator-research → produces research/curation report
+2. Spawn CL-ontologist → performs the edit using the research report
+3. If CL-ontologist needs external terms imported:
+   a. Spawn CL-importer → adds IRIs and refreshes imports
+   b. Re-invoke CL-ontologist → completes the edit with imported terms
+4. Commit, create PR
 ```
 
-The reasoner can find the most specific `is_a`, so it's OK to leave this off.
+### Before Making Edits
 
-## DELEGATION
-
-**Research**
-
-- before making decisions about edits - always call on @CL-curator** to research, validate and extend the information provided before proceeding with edits.
-
-**ALL IMPORTS MUST BE DELEGATED TO @CL-importer**
-
-- **NEVER** perform imports yourself - always call @CL-importer
+- Read the request carefully; note any nuance
+- If related issues are mentioned: `gh issue view <NUMBER>`
+- If a PMID is mentioned, always try to read it
+- Check proposed parent terms for consistency
+- For compositional terms, check `src/patterns/dosdp-patterns/*.yaml`
+- Include in-line references in definitions when provided in the ticket
