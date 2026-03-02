@@ -3292,6 +3292,7 @@ Declaration(Class(obo:CL_7770003))
 Declaration(Class(obo:CL_7770004))
 Declaration(Class(obo:CL_7770005))
 Declaration(Class(obo:CL_7770006))
+Declaration(Class(obo:CL_9900001))
 Declaration(Class(obo:CP_0000000))
 Declaration(Class(obo:CP_0000025))
 Declaration(Class(obo:CP_0000027))
@@ -35464,6 +35465,18 @@ AnnotationAssertion(Annotation(dc:license <http://creativecommons.org/licenses/b
 SubClassOf(obo:CL_7770006 obo:CL_0002367)
 SubClassOf(obo:CL_7770006 ObjectSomeValuesFrom(obo:RO_0002162 obo:NCBITaxon_9606))
 SubClassOf(obo:CL_7770006 ObjectSomeValuesFrom(obo:RO_0002292 obo:PR_Q9UIK5))
+
+# Class: obo:CL_9900001 (bone marrow adipocyte)
+
+AnnotationAssertion(Annotation(oboInOwl:hasDbXref "PMID:35903271") Annotation(oboInOwl:hasDbXref "PMID:37315208") Annotation(oboInOwl:hasDbXref "PMID:39109972") obo:IAO_0000115 obo:CL_9900001 "An adipocyte that is part of bone marrow adipose tissue and originates from bone marrow stromal cells. This cell is distinct from peripheral white adipocytes in its developmental origin, gene expression profile, and metabolic properties. Bone marrow adipocytes can be classified into two subtypes: regulated marrow adipocytes (rBMAd) in red marrow and constitutive marrow adipocytes (cBMAd) in yellow marrow. These cells serve as an energy reservoir for the skeletal system and hematopoietic cells, secrete adipokines and cytokines, and interact with osteoblasts, osteoclasts, and hematopoietic cells.")
+AnnotationAssertion(dc:creator obo:CL_9900001 "GitHub Copilot")
+AnnotationAssertion(terms:date obo:CL_9900001 "2026-01-27T14:33:04Z"^^xsd:dateTime)
+AnnotationAssertion(Annotation(oboInOwl:hasDbXref "PMID:35179487") oboInOwl:hasExactSynonym obo:CL_9900001 "marrow adipocyte")
+AnnotationAssertion(Annotation(oboInOwl:hasDbXref "PMID:39326787") Annotation(oboInOwl:hasSynonymType obo:OMO_0003000) oboInOwl:hasRelatedSynonym obo:CL_9900001 "BMAd")
+AnnotationAssertion(rdfs:label obo:CL_9900001 "bone marrow adipocyte")
+SubClassOf(obo:CL_9900001 obo:CL_0000136)
+SubClassOf(obo:CL_9900001 ObjectSomeValuesFrom(obo:BFO_0000050 obo:UBERON_0002371))
+SubClassOf(obo:CL_9900001 ObjectSomeValuesFrom(obo:RO_0002202 obo:CL_0010001))
 
 # Class: obo:CP_0000000 (obsolete CP:0000000)
 
